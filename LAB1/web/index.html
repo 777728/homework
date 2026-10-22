@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>数据结构实验演示 · 实验一 / 四 / 五 / 六</title>
+<style>
+  /* ---------- 基础 ---------- */
+  * { box-sizing: border-box; }
+
+  :root {
+    --bg: #eef1f5;
+    --card: #ffffff;
+    --line: #dde3ea;
+    --text: #1c2430;
+    --muted: #6b7785;
+    --blue: #0a6ed1;
+    --green: #12855a;
+    --amber: #a86400;
+    --purple: #6344bd;
+  }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 14px/1.65 -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    padding: 22px 20px 36px;
+  }
+
+  .app { max-width: 1280px; margin: 0 auto; }
+
+  /* ---------- 顶栏 ---------- */
+  .topbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+  }
+  .logo {
+    width: 26px; height: 26px;
+    border-radius: 7px;
+    background: linear-gradient(135deg, #3d97e8, #0a6ed1);
+    flex: none;
+  }
+  .topbar h1 { margin: 0; font-size: 16px; font-weight: 650; letter-spacing: .2px; }
+  .topbar .meta {
+    margin-left: auto;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+
+  .lead {
+    margin: 10px 2px 18px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  /* ---------- 四区域布局 ---------- */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    align-items: start;
+  }
+  @media (max-width: 1020px) {
+    .grid { grid-template-columns: minmax(0, 1fr); }
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 0 0 14px;
+    min-width: 0;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, .04);
+  }
+
+  .card-head {
+    padding: 14px 16px 12px;
+    border-bottom: 1px solid #edf0f4;
+  }
+  .card-title {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin: 0 0 4px;
+    font-size: 15px;
+    font-weight: 650;
+  }
+  .card-desc {
+    margin: 0;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+
+  .num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px; height: 24px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    flex: none;
+  }
+  .n1 { background: var(--blue); }
+  .n4 { background: var(--green); }
+  .n5 { background: var(--amber); }
+  .n6 { background: var(--purple); }
+
+  /* ---------- 选项卡（卡片内部） ---------- */
+  .seg {
+    display: flex;
+    gap: 6px;
+    padding: 12px 16px 0;
+  }
+  .seg button {
+    padding: 5px 12px;
+    font: inherit;
+    font-size: 13px;
+    color: var(--muted);
+    background: #f4f6f9;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .seg button.active {
+    color: #fff;
+    background: var(--blue);
+    border-color: var(--blue);
+  }
+  #lab5 .seg button.active { background: var(--amber); border-color: var(--amber); }
+
+  .panel { display: none; padding: 14px 16px 0; }
+  .panel.active { display: block; }
+
+  /* ---------- 表单 ---------- */
+  .field {
+    display: grid;
+    grid-template-columns: 92px minmax(0, 1fr);
+    align-items: center;
+    gap: 8px 10px;
+    margin-bottom: 10px;
+  }
+  .field > label { text-align: right; color: #414e5c; font-size: 13px; }
+
+  input[type=text], select, textarea {
+    width: 100%;
+    padding: 7px 10px;
+    font: inherit;
+    font-size: 13px;
+    color: var(--text);
+    background: #fff;
+    border: 1px solid #c9d1db;
+    border-radius: 5px;
+    outline: none;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  input[type=text]:focus, select:focus, textarea:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(10, 110, 209, .12);
+  }
+  textarea {
+    font: 12.5px/1.7 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    resize: vertical;
+    min-height: 76px;
+  }
+
+  .inline { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .inline input[type=text] { width: 76px; }
+
+  .hint { margin: 0 0 10px; font-size: 12.5px; color: var(--muted); }
+  .hint code {
+    background: #eef1f5;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 12px;
+  }
+
+  /* ---------- 按钮 ---------- */
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 6px 0 12px;
+  }
+  .actions .spacer { flex: 1; }
+
+  button {
+    padding: 6px 13px;
+    font: inherit;
+    font-size: 13px;
+    color: #26313d;
+    background: linear-gradient(#ffffff, #f2f4f7);
+    border: 1px solid #c3ccd6;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background .12s, transform .05s;
+  }
+  button:hover { background: linear-gradient(#ffffff, #e9edf2); }
+  button:active { transform: translateY(1px); }
+  button.primary {
+    color: #fff;
+    background: linear-gradient(#2f8ae0, #0a6ed1);
+    border-color: #0a6ed1;
+    font-weight: 600;
+  }
+  button.primary:hover { background: linear-gradient(#3d97e8, #0f7ade); }
+  #lab4 button.primary { background: linear-gradient(#26a171, #12855a); border-color: #12855a; }
+  #lab4 button.primary:hover { background: linear-gradient(#2fb37f, #169466); }
+  #lab5 button.primary { background: linear-gradient(#c98b1a, #a86400); border-color: #a86400; }
+  #lab5 button.primary:hover { background: linear-gradient(#d69a2b, #b8710a); }
+  #lab6 button.primary { background: linear-gradient(#7a5ad4, #6344bd); border-color: #6344bd; }
+  #lab6 button.primary:hover { background: linear-gradient(#8869df, #6d4dc9); }
+  button.ghost {
+    background: transparent;
+    border-color: transparent;
+    color: var(--blue);
+  }
+  button.ghost:hover { background: rgba(10, 110, 209, .07); }
+
+  /* ---------- 结果 ---------- */
+  .group {
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    overflow: hidden;
+    background: #fbfcfe;
+  }
+  .group-title {
+    padding: 5px 11px;
+    font-size: 11.5px;
+    letter-spacing: .3px;
+    color: var(--muted);
+    background: #f4f6f9;
+    border-bottom: 1px solid #e6ebf1;
+  }
+  pre {
+    margin: 0;
+    padding: 11px 12px;
+    max-height: 300px;
+    overflow: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font: 12.5px/1.7 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color: #182230;
+    min-height: 92px;
+  }
+  pre.tall { max-height: 380px; }
+
+  .status {
+    margin-top: 8px;
+    min-height: 18px;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+  .status.ok { color: #12703f; }
+  .status.err { color: #b32d20; }
+
+  details {
+    margin: 0 0 10px;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+  summary { cursor: pointer; user-select: none; }
+
+  footer {
+    margin-top: 22px;
+    text-align: center;
+    font-size: 12px;
+    color: #93a0ae;
+  }
+  footer code { color: #6b7785; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="topbar">
+    <span class="logo"></span>
+    <h1>数据结构实验演示</h1>
+    <span class="meta">C11 · 零第三方依赖 · 本地服务</span>
+  </header>
+
+  <p class="lead">
+    四个区域分别对应四个实验，点击按钮即可计算。所有算法由 C 程序完成，页面只负责显示。
+  </p>
+
+  <main class="grid">
+
+    <!-- ==================== 区域一：实验一 ==================== -->
+    <section class="card" id="lab1">
+      <div class="card-head">
+        <h2 class="card-title"><span class="num n1">01</span>实验一 · 线性表</h2>
+        <p class="card-desc">一元稀疏多项式计算器（带头结点单链表），附线性方程组求解。</p>
+      </div>
+
+      <div class="seg" data-seg="lab1">
+        <button class="active" data-panel="p-poly">多项式</button>
+        <button data-panel="p-linear">线性方程组</button>
+      </div>
+
+      <!-- 多项式 -->
+      <div class="panel active" id="p-poly">
+        <div class="field">
+          <label for="A">多项式 A</label>
+          <input id="A" type="text" value="9x^8+3x+7" autocomplete="off">
+          <label for="B">多项式 B</label>
+          <input id="B" type="text" value="x^7-3.2x" autocomplete="off">
+          <label for="X">x 的值</label>
+          <div class="inline">
+            <input id="X" type="text" value="1" autocomplete="off">
+            <button onclick="polyRun('eval')">求 A(x)、B(x)</button>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="primary" onclick="polyRun('add')">A + B</button>
+          <button onclick="polyRun('sub')">A − B</button>
+          <button onclick="polyRun('mul')">A × B</button>
+          <button onclick="polyRun('deriv')">求导 A′</button>
+          <span class="spacer"></span>
+          <button class="ghost" onclick="polySample()">示例</button>
+        </div>
+
+        <div class="group">
+          <div class="group-title">运算结果</div>
+          <pre id="poly-out">（点击上面的按钮进行计算）</pre>
+        </div>
+        <div id="poly-status" class="status"></div>
+      </div>
+
+      <!-- 线性方程组 -->
+      <div class="panel" id="p-linear">
+        <p class="hint">
+          每行一个方程：<code>系数 … 常数项</code>。例如 <code>1 1 1 6</code> 表示 x₁+x₂+x₃=6。
+        </p>
+        <textarea id="mat" spellcheck="false">1  1  1  6
+2  2  2  12
+1 -1  0  0</textarea>
+
+        <div class="actions">
+          <button class="primary" onclick="linearSolve()">求解</button>
+          <span class="spacer"></span>
+          <button class="ghost" onclick="linearSample()">示例</button>
+          <button class="ghost" onclick="linearClear()">清空</button>
+        </div>
+
+        <div class="group">
+          <div class="group-title">求解结果</div>
+          <pre id="linear-out">（点击“求解”查看结果）</pre>
+        </div>
+        <div id="linear-status" class="status"></div>
+      </div>
+    </section>
+
+    <!-- ==================== 区域二：实验四 ==================== -->
+    <section class="card" id="lab4">
+      <div class="card-head">
+        <h2 class="card-title"><span class="num n4">04</span>实验四 · 数组与迷宫</h2>
+        <p class="card-desc">二维数组存储迷宫，链表栈 + 深度优先搜索求通路，输出三元组路径。</p>
+      </div>
+
+      <div class="panel active" id="p-maze">
+        <div class="field">
+          <label>迷宫大小</label>
+          <div class="inline">
+            <input id="m-rows" type="text" value="15" autocomplete="off"> ×
+            <input id="m-cols" type="text" value="21" autocomplete="off">
+            <span class="hint" style="margin:0">种子</span>
+            <input id="m-seed" type="text" value="1" autocomplete="off">
+          </div>
+          <label for="m-grid">自定义迷宫</label>
+          <textarea id="m-grid" spellcheck="false" placeholder="可留空。也可粘贴 0/1 方阵，例如&#10;00000&#10;01110&#10;00000&#10;（程序会自动补一圈墙）"></textarea>
+        </div>
+
+        <div class="actions">
+          <button class="primary" onclick="mazeRun('mazesolve')">生成并求解</button>
+          <button onclick="mazeRun('mazegen')">只生成</button>
+          <span class="spacer"></span>
+          <button class="ghost" onclick="mazeClear()">清空</button>
+        </div>
+
+        <div class="group">
+          <div class="group-title">迷宫与路径（# 墙　空格 通路　* 路径　x 死路）</div>
+          <pre id="maze-out" class="tall">（点击“生成并求解”查看结果）</pre>
+        </div>
+        <div id="maze-status" class="status"></div>
+      </div>
+    </section>
+
+    <!-- ==================== 区域三：实验五 ==================== -->
+    <section class="card" id="lab5">
+      <div class="card-head">
+        <h2 class="card-title"><span class="num n5">05</span>实验五 · 树及其应用</h2>
+        <p class="card-desc">二叉树建树与四种遍历、树与二叉树互转、哈夫曼编码与译码。</p>
+      </div>
+
+      <div class="seg" data-seg="lab5">
+        <button class="active" data-panel="p-tree">二叉树</button>
+        <button data-panel="p-huff">哈夫曼</button>
+      </div>
+
+      <!-- 二叉树 -->
+      <div class="panel active" id="p-tree">
+        <div class="field">
+          <label for="t-pre">先序序列</label>
+          <input id="t-pre" type="text" value="ABC##DE#G##F###" autocomplete="off">
+        </div>
+        <p class="hint">用 <code>#</code> 表示空子树。默认是课本示例，建出的树高 5、7 个结点。</p>
+
+        <div class="actions">
+          <button class="primary" onclick="treeRun()">建树并遍历</button>
+        </div>
+
+        <div class="group">
+          <div class="group-title">遍历结果</div>
+          <pre id="tree-out">（点击“建树并遍历”查看结果）</pre>
+        </div>
+        <div id="tree-status" class="status"></div>
+
+        <div style="border-top:1px dashed #e2e8ef;margin:14px 0 12px"></div>
+
+        <div class="field">
+          <label for="t-general">树的括号表示</label>
+          <input id="t-general" type="text" value="A(B(E,F),C(G),D)" autocomplete="off">
+        </div>
+
+        <div class="actions">
+          <button onclick="treeConvert()">树 ⇄ 二叉树</button>
+        </div>
+
+        <div class="group">
+          <div class="group-title">转换结果</div>
+          <pre id="conv-out">（点击“树 ⇄ 二叉树”查看结果）</pre>
+        </div>
+        <div id="conv-status" class="status"></div>
+      </div>
+
+      <!-- 哈夫曼 -->
+      <div class="panel" id="p-huff">
+        <div class="field">
+          <label for="h-text">电文</label>
+          <textarea id="h-text" spellcheck="false" style="min-height:66px">THIS PROGRAM IS MY FAVORITE</textarea>
+        </div>
+
+        <details>
+          <summary>频度表（可留空；留空则按电文自动统计）</summary>
+          <textarea id="h-table" spellcheck="false" style="margin-top:8px;min-height:88px"
+            placeholder="每行一个字符和它的频度，_ 表示空格，例如：&#10;A 186&#10;B 64"></textarea>
+          <div class="actions" style="margin-bottom:0">
+            <button class="ghost" onclick="huffTextbook()">填入课本 A–Z 频度表</button>
+          </div>
+        </details>
+
+        <div class="actions">
+          <button class="primary" onclick="huffRun('encode')">编码</button>
+          <button onclick="huffRun('decode')">译码</button>
+          <span class="spacer"></span>
+          <button class="ghost" onclick="huffClear()">清空编码串</button>
+        </div>
+
+        <div class="field">
+          <label for="h-bits">编码串</label>
+          <textarea id="h-bits" spellcheck="false" style="min-height:56px" placeholder="点击“编码”后自动填入；也可以粘贴 0/1 串再点“译码”"></textarea>
+        </div>
+
+        <div class="group">
+          <div class="group-title">结果</div>
+          <pre id="huff-out" class="tall">（点击“编码”生成编码表）</pre>
+        </div>
+        <div id="huff-status" class="status"></div>
+      </div>
+    </section>
+
+    <!-- ==================== 区域四：实验六 ==================== -->
+    <section class="card" id="lab6">
+      <div class="card-head">
+        <h2 class="card-title"><span class="num n6">06</span>实验六 · 图与校园导游</h2>
+        <p class="card-desc">邻接矩阵存储校园无向带权图，支持遍历、最短路径、任意两点距离与校园环游。</p>
+      </div>
+
+      <div class="panel active" id="p-graph">
+        <div class="field">
+          <label for="g-s">起点</label>
+          <select id="g-s"></select>
+          <label for="g-t">终点</label>
+          <select id="g-t"></select>
+        </div>
+
+        <div class="actions">
+          <button class="primary" onclick="graphRun('dijkstra')">最短路径</button>
+          <button onclick="graphRun('dfs')">深度优先</button>
+          <button onclick="graphRun('bfs')">广度优先</button>
+          <button onclick="graphRun('tour')">校园环游</button>
+          <button onclick="graphRun('floyd')">任意两点距离</button>
+          <span class="spacer"></span>
+          <button class="ghost" onclick="graphRun('list')">地点列表</button>
+        </div>
+
+        <div class="group">
+          <div class="group-title">结果</div>
+          <pre id="graph-out" class="tall">（点击上面的按钮查看结果）</pre>
+        </div>
+        <div id="graph-status" class="status"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    所有计算均由本地 C 程序完成 · 接口：<code>POST /api</code>
+  </footer>
+</div>
+
+<script>
+  /* ==================== 公共 ==================== */
+  const $ = id => document.getElementById(id);
+
+  function api(params) {
+    return fetch('/api', {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: new URLSearchParams(params).toString()
+    }).then(r => r.text());
+  }
+
+  function setStatus(id, msg, ok) {
+    const el = $(id);
+    el.textContent = msg;
+    el.className = 'status ' + (ok ? 'ok' : 'err');
+  }
+
+  /* 统一处理返回：ERR: 开头视为错误 */
+  function show(outId, statusId, text, okMsg) {
+    const out = $(outId);
+    if (text.startsWith('ERR:')) {
+      out.textContent = text.slice(4);
+      setStatus(statusId, '出错了，请检查输入', false);
+      return false;
+    }
+    out.textContent = text.replace(/\s+$/, '');
+    setStatus(statusId, okMsg, true);
+    return true;
+  }
+
+  /* 卡片内部的选项卡 */
+  document.querySelectorAll('.seg').forEach(seg => {
+    seg.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        seg.querySelectorAll('button').forEach(b => b.classList.toggle('active', b === btn));
+        const card = seg.closest('.card');
+        card.querySelectorAll('.panel').forEach(p => {
+          p.classList.toggle('active', p.id === btn.dataset.panel);
+        });
+      });
+    });
+  });
+
+  /* ==================== 实验一：多项式 ==================== */
+  function polyRun(op) {
+    api({
+      op: op,
+      A: $('A').value,
+      B: $('B').value,
+      x: $('X').value
+    }).then(text => show('poly-out', 'poly-status', text, '计算完成'))
+      .catch(e => setStatus('poly-status', '无法连接后端：' + e.message, false));
+  }
+
+  function polySample() {
+    $('A').value = '9x^8+3x+7';
+    $('B').value = 'x^7-3.2x';
+    $('X').value = '1';
+    setStatus('poly-status', '已载入课本示例', true);
+  }
+
+  ['A', 'B', 'X'].forEach(id => {
+    $(id).addEventListener('keydown', e => { if (e.key === 'Enter') polyRun('add'); });
+  });
+
+  /* ==================== 实验一：线性方程组 ==================== */
+  function linearSolve() {
+    api({ op: 'solve', mat: $('mat').value })
+      .then(text => show('linear-out', 'linear-status', text, '求解完成'))
+      .catch(e => setStatus('linear-status', '无法连接后端：' + e.message, false));
+  }
+
+  function linearSample() {
+    $('mat').value = '1  1  1  6\n2  2  2  12\n1 -1  0  0';
+    setStatus('linear-status', '已填入示例方程组', true);
+  }
+
+  function linearClear() {
+    $('mat').value = '';
+    $('linear-out').textContent = '（点击“求解”查看结果）';
+    setStatus('linear-status', '', true);
+  }
+
+  /* ==================== 实验四：迷宫 ==================== */
+  function mazeRun(op) {
+    api({
+      op: op,
+      rows: $('m-rows').value,
+      cols: $('m-cols').value,
+      seed: $('m-seed').value,
+      grid: $('m-grid').value
+    }).then(text => show('maze-out', 'maze-status', text,
+                         op === 'mazegen' ? '迷宫已生成' : '求解完成'))
+      .catch(e => setStatus('maze-status', '无法连接后端：' + e.message, false));
+  }
+
+  function mazeClear() {
+    $('m-grid').value = '';
+    $('maze-out').textContent = '（点击“生成并求解”查看结果）';
+    setStatus('maze-status', '', true);
+  }
+
+  /* ==================== 实验五：二叉树 ==================== */
+  function treeRun() {
+    api({ op: 'tree', pre: $('t-pre').value })
+      .then(text => show('tree-out', 'tree-status', text, '遍历完成'))
+      .catch(e => setStatus('tree-status', '无法连接后端：' + e.message, false));
+  }
+
+  function treeConvert() {
+    api({ op: 'treeconv', text: $('t-general').value })
+      .then(text => show('conv-out', 'conv-status', text, '转换完成'))
+      .catch(e => setStatus('conv-status', '无法连接后端：' + e.message, false));
+  }
+
+  /* ==================== 实验五：哈夫曼 ==================== */
+  function huffRun(mode) {
+    api({
+      op: 'huff',
+      mode: mode,
+      text: $('h-text').value,
+      table: $('h-table').value,
+      bits: mode === 'decode' ? $('h-bits').value : ''
+    }).then(text => {
+      if (text.startsWith('ERR:')) {
+        show('huff-out', 'huff-status', text, '');
+        return;
+      }
+
+      /* 编码结果里带一段 ===BITS===，后半部分填进编码框 */
+      let shown = text;
+      const mark = text.indexOf('===BITS===');
+      if (mode === 'encode' && mark >= 0) {
+        const bits = text.slice(mark + 10).trim();
+        $('h-bits').value = bits;
+        shown = text.slice(0, mark).replace(/\s+$/, '');
+      }
+
+      show('huff-out', 'huff-status', shown,
+           mode === 'encode' ? '编码完成，已填入编码串' : '译码完成');
+    }).catch(e => setStatus('huff-status', '无法连接后端：' + e.message, false));
+  }
+
+  function huffTextbook() {
+    $('h-table').value =
+      'A 186\nB 64\nC 13\nD 22\nE 103\nF 32\nG 21\nH 15\nI 47\nJ 57\n' +
+      'K 1\nL 32\nM 20\nN 57\nO 63\nP 15\nQ 1\nR 48\nS 51\nT 80\n' +
+      'U 23\nV 8\nW 18\nX 1\nY 16\nZ 1\n_ 200';
+    setStatus('huff-status', '已填入课本频度表（_ 表示空格）', true);
+  }
+
+  function huffClear() {
+    $('h-bits').value = '';
+    setStatus('huff-status', '', true);
+  }
+
+  /* ==================== 实验六：图 ==================== */
+  function loadSpots() {
+    api({ op: 'graph', mode: 'names' }).then(text => {
+      const list = text.trim().split('\n').filter(Boolean).map(line => {
+        const i = line.indexOf('|');
+        return { id: line.slice(0, i), name: line.slice(i + 1) };
+      });
+
+      ['g-s', 'g-t'].forEach((id, k) => {
+        const sel = $(id);
+        sel.innerHTML = '';
+        list.forEach(item => {
+          const opt = document.createElement('option');
+          opt.value = item.id;
+          opt.textContent = item.name;
+          sel.appendChild(opt);
+        });
+        sel.value = k === 0 ? '0' : '6';   /* 默认：南门 -> 学生会堂 */
+      });
+    });
+  }
+
+  function graphRun(mode) {
+    const data = { op: 'graph', mode: mode, s: $('g-s').value, t: $('g-t').value };
+    api(data).then(text => show('graph-out', 'graph-status', text, '计算完成'))
+      .catch(e => setStatus('graph-status', '无法连接后端：' + e.message, false));
+  }
+
+  /* ==================== 启动 ==================== */
+  (function init() {
+    setStatus('poly-status', '就绪', true);
+    loadSpots();
+
+    /* ?demo=1 时自动算一次 A+B，方便演示 */
+    if (new URLSearchParams(location.search).get('demo') === '1') polyRun('add');
+  })();
+</script>
+</body>
+</html>
