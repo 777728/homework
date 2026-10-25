@@ -19,6 +19,7 @@
  *  运行：./build.sh web   然后浏览器访问 http://127.0.0.1:8765
  * ==========================================================================*/
 
+#include <ctype.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -49,10 +50,7 @@ typedef int sock_t;
 #define DEFAULT_PORT 8765
 #define MAX_REQUEST  65536
 #define MAX_PAGE     262144
-
-/* 页面文件缓存（启动时一次性读入内存，之后每次请求直接发送） */
-static char  g_page[MAX_PAGE];
-static size_t g_page_len = 0;
+#define WEB_ROOT     "web"      /* 静态资源根目录 */
 
 /* ==========================================================================
  *  一、字符串小工具
@@ -610,6 +608,95 @@ static int ContentLength(const char *req) {
     return atoi(p + strlen("Content-Length:"));
 }
 
+/* ==========================================================================
+ *  五、静态资源（web/ 目录）
+ *  --------------------------------------------------------------------------
+ *  页面拆成了 index.html + css/js/src/vendor 多份文件，
+ *  服务端按 URL 直接映射到 web/ 下，不再把整页读进内存。
+ *  只允许字母、数字、'-'、'_'、'.'、'/'，并拒绝 ".."，避免目录穿越。
+ * ==========================================================================*/
+
+static const char *MimeType(const char *path) {
+    const char *dot = strrchr(path, '.');
+
+    if (dot == NULL) return "application/octet-stream";
+    if (strcmp(dot, ".html") == 0) return "text/html; charset=utf-8";
+    if (strcmp(dot, ".css")  == 0) return "text/css; charset=utf-8";
+    if (strcmp(dot, ".js")   == 0) return "application/javascript; charset=utf-8";
+    if (strcmp(dot, ".json") == 0) return "application/json; charset=utf-8";
+    if (strcmp(dot, ".cpp")  == 0 || strcmp(dot, ".h") == 0 ||
+        strcmp(dot, ".c")    == 0) return "text/plain; charset=utf-8";
+    if (strcmp(dot, ".svg")  == 0) return "image/svg+xml";
+    if (strcmp(dot, ".png")  == 0) return "image/png";
+    if (strcmp(dot, ".jpg")  == 0 || strcmp(dot, ".jpeg") == 0) return "image/jpeg";
+    if (strcmp(dot, ".ico")  == 0) return "image/x-icon";
+    return "application/octet-stream";
+}
+
+/* 路径安全：拒绝 ..、反斜杠和控制字符 */
+static int SafePath(const char *url) {
+    if (url[0] != '/') return 0;
+    for (const char *p = url; *p != '\0'; p++) {
+        unsigned char c = (unsigned char)*p;
+        if (c < 0x20 || c == '\\') return 0;
+        if (!(isalnum(c) || c == '/' || c == '-' || c == '_' || c == '.')) return 0;
+    }
+    return strstr(url, "..") == NULL;
+}
+
+/* 把文件分块发出去，避免为大文件准备整块内存 */
+static void SendFile(sock_t fd, FILE *fp, const char *type, long size) {
+    char head[256];
+    char buf[16384];
+
+    int n = snprintf(head, sizeof head,
+                     "HTTP/1.1 200 OK\r\n"
+                     "Content-Type: %s\r\n"
+                     "Content-Length: %ld\r\n"
+                     "Cache-Control: no-store\r\n"
+                     "Connection: close\r\n\r\n",
+                     type, size);
+    SendAll(fd, head, (size_t)n);
+
+    size_t got;
+    while ((got = fread(buf, 1, sizeof buf, fp)) > 0) {
+        SendAll(fd, buf, got);
+    }
+}
+
+/* 返回 1 表示已经响应（无论命中与否） */
+static int ServeStatic(sock_t fd, const char *url) {
+    char rel[512];
+    FILE *fp;
+
+    if (!SafePath(url)) goto not_found;
+
+    /* "/" 和 "/index.html" 都指向首页 */
+    if (strcmp(url, "/") == 0) {
+        snprintf(rel, sizeof rel, "%s/index.html", WEB_ROOT);
+    } else {
+        snprintf(rel, sizeof rel, "%s%s", WEB_ROOT, url);
+    }
+
+    fp = fopen(rel, "rb");
+    if (fp == NULL) goto not_found;
+
+    if (fseek(fp, 0L, SEEK_END) != 0) { fclose(fp); goto not_found; }
+    long size = ftell(fp);
+    rewind(fp);
+    if (size < 0) { fclose(fp); goto not_found; }
+
+    SendFile(fd, fp, MimeType(rel), size);
+    fclose(fp);
+    return 1;
+
+not_found: {
+        const char *msg = "not found";
+        Respond(fd, "404 Not Found", "text/plain; charset=utf-8", msg, strlen(msg));
+        return 1;
+    }
+}
+
 /* 处理一个连接：解析请求 → 分发 → 响应 */
 static void HandleClient(sock_t fd) {
     static char req[MAX_REQUEST];
@@ -641,14 +728,9 @@ static void HandleClient(sock_t fd) {
     char *query = strchr(path, '?');
     if (query != NULL) *query = '\0';
 
-    /* ---- 首页 ---- */
-    if (strcmp(method, "GET") == 0 && (strcmp(path, "/") == 0 || strcmp(path, "/index.html") == 0)) {
-        if (g_page_len == 0) {
-            const char *msg = "找不到 web/index.html，请在项目根目录下运行本程序。";
-            Respond(fd, "404 Not Found", "text/plain; charset=utf-8", msg, strlen(msg));
-        } else {
-            Respond(fd, "200 OK", "text/html; charset=utf-8", g_page, g_page_len);
-        }
+    /* ---- 首页与静态资源（web/ 目录） ---- */
+    if (strcmp(method, "GET") == 0) {
+        ServeStatic(fd, path);
         return;
     }
 
@@ -678,18 +760,13 @@ static void HandleClient(sock_t fd) {
     Respond(fd, "404 Not Found", "text/plain; charset=utf-8", nf, strlen(nf));
 }
 
-/* 把 web/index.html 读进内存 */
-static void LoadPage(void) {
-    const char *paths[] = { "web/index.html", "index.html", NULL };
-
-    for (int i = 0; paths[i] != NULL; i++) {
-        FILE *fp = fopen(paths[i], "rb");
-        if (fp == NULL) continue;
-
-        g_page_len = fread(g_page, 1, sizeof g_page - 1, fp);
+/* 把请求里剩下的路径映射到 web/ 下，本地服务不需要额外的静态服务器 */
+static void CheckWebRoot(void) {
+    FILE *fp = fopen(WEB_ROOT "/index.html", "rb");
+    if (fp == NULL) {
+        fprintf(stderr, "警告：找不到 %s/index.html，请在 LAB1 目录下运行本程序。\n", WEB_ROOT);
+    } else {
         fclose(fp);
-        g_page[g_page_len] = '\0';
-        return;
     }
 }
 
@@ -724,7 +801,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    LoadPage();
+    CheckWebRoot();
 
 #if defined(_WIN32)
     WSADATA wsa;
@@ -765,9 +842,9 @@ int main(int argc, char **argv) {
     }
 
     printf("=====================================================\n");
-    printf("  数据结构实验演示  （实验一 / 四 / 五 / 六）\n");
+    printf("  数据结构实验 · 算法可视化  （实验一 / 二 / 三 / 四）\n");
     printf("  地址：http://127.0.0.1:%d\n", port);
-    printf("  接口：POST /api   详见 README 的接口说明\n");
+    printf("  静态资源：%s/    接口：POST /api\n", WEB_ROOT);
     printf("  关闭本窗口即退出程序。\n");
     printf("=====================================================\n");
 

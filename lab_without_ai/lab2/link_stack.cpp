@@ -24,6 +24,24 @@ void Push(Stack &S, ElemType e) {
     LinkType temp = new NodeType;
     temp->data = e;
     temp->next = S.top;
-    S.top = temp;
+    S.top = temp; // 栈指针永远指向栈顶
     S.size++;
+}
+bool Pop(Stack &S, ElemType &e) {
+    if (StackEmpty(S)) {
+        return false;
+    }
+    e = S.top->data;
+    LinkType temp = S.top;
+    S.top = S.top->next;
+    delete temp;
+    S.size--;
+    return true;
+}
+bool GetTop(const Stack &S, ElemType &e) {
+    if (StackEmpty(S)) {
+        return false;
+    }
+    e = S.top->data;
+    return true;
 }

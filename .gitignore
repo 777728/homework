@@ -1,0 +1,10 @@
+# macOS
+.DS_Store
+
+# 编译中间件与可执行文件
+*.o
+*.dSYM/
+LAB1/app
+LAB1/app-web
+LAB1/selftest
+lab_without_ai/lab2/maze
