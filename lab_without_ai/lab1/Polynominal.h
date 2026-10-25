@@ -1,6 +1,6 @@
 /*
 * 2026.10.20 made by caihaoran 20251910042
-* tools: ai coding completion & find some mistakes (marked after "/*" )
+* tools: ai coding completion & find some mistakes 
 * THANKYOU FOR WATCHING
 */
 #ifndef POLYNOMIAL_H
@@ -38,12 +38,12 @@ typedef struct Node{
     double coef; // 系数英文coefficient
     int expn;    // 指数英文exponent
     struct Node *next;  // C的typedef 在结构体定义内部还没生效  但c++可以直接使用 Node *next
-}node;
+}node; // 链表结点类型
 typedef struct Poly{
     node *head;
     node *tail;
     int len;
-}poly;
+}poly; // 多项式类型
 bool MakeNode(node*& p, double coef, int expn); //node& p为啥不行？node& 是结点对象的引用。调用方必须传一个已经存在的 node 对象
 // ============================================================
 // 函数传参：传值 vs 传址
@@ -62,6 +62,8 @@ bool MakeNode(node*& p, double coef, int expn); //node& p为啥不行？node& �
 // ============================================================
 void InitList(poly& L);
 void DestroyList(poly& L);
+void ParsePolyn(poly& p);
+void InsertInOrder(poly& L,double coef,int expn);
 void CreatePolyn(poly& p,const std::vector<double>& coef,const std::vector<int>& expn);
 void DestroyPolyn(poly& p);
 void PrintPolyn(const poly& p); // 细节
