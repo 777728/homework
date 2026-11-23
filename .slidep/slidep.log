@@ -1,0 +1,14 @@
+=== boot pid=6209 ts=2026-11-08 13:14:03.663 cwd=/Users/eric/Desktop/project/HOMEWORK/data_structure argv=/Users/eric/.workbuddy/binaries/node/versions/22.22.2-6/lib/node_modules/@tencent/slidep/dist/index.js inspect /Users/eric/Desktop/project/HOMEWORK/data_structure/数据结构与算法讲义-第1章.ppt --out /tmp/slidep-inspect.ZfDnb9 ===
+[2026-11-08 13:14:03.657] [INFO ] [pid=6209] [server-url] baseUrl=http://localhost:39099 source=portFile(/Users/eric/.workbuddy/tencent-docs-engine.port)
+=== boot pid=6282 ts=2026-11-08 13:14:08.889 cwd=/Users/eric/Desktop/project/HOMEWORK/data_structure argv=/Users/eric/.workbuddy/binaries/node/versions/22.22.2-6/lib/node_modules/@tencent/slidep/dist/index.js inspect 数据结构与算法讲义-第1章.ppt --out /tmp/ds_wk/ppt1 ===
+[2026-11-08 13:14:08.885] [INFO ] [pid=6282] [server-url] baseUrl=http://localhost:39099 source=portFile(/Users/eric/.workbuddy/tencent-docs-engine.port)
+=== boot pid=6330 ts=2026-11-08 13:14:10.342 cwd=/Users/eric/Desktop/project/HOMEWORK/data_structure argv=/Users/eric/.workbuddy/binaries/node/versions/22.22.2-6/lib/node_modules/@tencent/slidep/dist/index.js inspect 数据结构与算法讲义-第2章.ppt --out /tmp/ds_wk/ppt2 ===
+[2026-11-08 13:14:10.336] [INFO ] [pid=6330] [server-url] baseUrl=http://localhost:39099 source=portFile(/Users/eric/.workbuddy/tencent-docs-engine.port)
+=== boot pid=6378 ts=2026-11-08 13:14:11.717 cwd=/Users/eric/Desktop/project/HOMEWORK/data_structure argv=/Users/eric/.workbuddy/binaries/node/versions/22.22.2-6/lib/node_modules/@tencent/slidep/dist/index.js inspect 数据结构与算法讲义-第3章.ppt --out /tmp/ds_wk/ppt3 ===
+[2026-11-08 13:14:11.711] [INFO ] [pid=6378] [server-url] baseUrl=http://localhost:39099 source=portFile(/Users/eric/.workbuddy/tencent-docs-engine.port)
+=== boot pid=6426 ts=2026-11-08 13:14:13.027 cwd=/Users/eric/Desktop/project/HOMEWORK/data_structure argv=/Users/eric/.workbuddy/binaries/node/versions/22.22.2-6/lib/node_modules/@tencent/slidep/dist/index.js inspect 数据结构与算法讲义-第4章.ppt --out /tmp/ds_wk/ppt4 ===
+[2026-11-08 13:14:13.021] [INFO ] [pid=6426] [server-url] baseUrl=http://localhost:39099 source=portFile(/Users/eric/.workbuddy/tencent-docs-engine.port)
+=== boot pid=6483 ts=2026-11-08 13:14:14.192 cwd=/Users/eric/Desktop/project/HOMEWORK/data_structure argv=/Users/eric/.workbuddy/binaries/node/versions/22.22.2-6/lib/node_modules/@tencent/slidep/dist/index.js inspect 数据结构与算法讲义-第5章.ppt --out /tmp/ds_wk/ppt5 ===
+[2026-11-08 13:14:14.187] [INFO ] [pid=6483] [server-url] baseUrl=http://localhost:39099 source=portFile(/Users/eric/.workbuddy/tencent-docs-engine.port)
+=== boot pid=6539 ts=2026-11-08 13:14:15.354 cwd=/Users/eric/Desktop/project/HOMEWORK/data_structure argv=/Users/eric/.workbuddy/binaries/node/versions/22.22.2-6/lib/node_modules/@tencent/slidep/dist/index.js inspect 数据结构与算法讲义-第6章.ppt --out /tmp/ds_wk/ppt6 ===
+[2026-11-08 13:14:15.348] [INFO ] [pid=6539] [server-url] baseUrl=http://localhost:39099 source=portFile(/Users/eric/.workbuddy/tencent-docs-engine.port)

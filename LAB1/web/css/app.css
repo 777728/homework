@@ -714,3 +714,23 @@ main { max-width: 1560px; margin: 0 auto; padding: 20px 18px 8px; }
   border: 1px solid rgba(27, 34, 48, .35);
   pointer-events: none;
 }
+
+/* 3D 地图标签：水面 / 次要楼群 */
+.map-label.is-water {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  color: #2f7f97;
+  font-weight: 700;
+  letter-spacing: 5px;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, .85);
+}
+.map-label.is-minor {
+  font-size: 10px;
+  font-weight: 600;
+  color: #4a5868;
+  background: rgba(255, 252, 242, .72);
+  border-color: #cfc4ae;
+  box-shadow: none;
+  padding: 0 5px;
+}

@@ -87,7 +87,7 @@ WB.ANNOT = {
   ],
 
   'src/lab4/CampusData.cpp': [
-    { from: 7, to: 103, kind: 'data', label: '22 个地点 + 46 条道路（人工按示意图量取）' },
+    { from: 7, to: 103, kind: 'data', label: '22 个地点 + 46 条道路（按真实方位标定）' },
     { from: 105, to: 113, kind: 'helper', label: 'gateIndices 取出五个校门' },
     { from: 115, to: 126, kind: 'data', label: 'classicStops 经典打卡路线' }
   ],

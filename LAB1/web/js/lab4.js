@@ -211,6 +211,26 @@
       let cur = null;
       let mode = 'dijkstra';
 
+      /* ---- 地标信息卡 ---- */
+      function showLandmark(m) {
+        if (!card) return;
+        const kind = {
+          lake: '水系', hill: '山体', clock: '景观', hall: '文体', observatory: '科研',
+          track: '体育', garden: '景观', greenhouse: '科研', lavender: '景观',
+          rose: '景观', sakura: '景观', avenue: '景观', wall: '文化', fountain: '景观',
+          metro: '交通', market: '生活', archive: '文化', pavilion: '景观', gate: '校门'
+        }[m.kind] || '景物';
+
+        card.innerHTML = `
+          <button class="close" aria-label="关闭">×</button>
+          <h4>${m.name}</h4>
+          <span class="cat">${kind}</span>
+          <p>${m.note || '校园实景地标。'}</p>
+        `;
+        card.style.display = '';
+        card.querySelector('.close').addEventListener('click', () => { card.style.display = 'none'; });
+      }
+
       /* ---- 地点信息卡 ---- */
       function showPoi(id) {
         if (!card) return;
@@ -246,7 +266,7 @@
         card.style.display = 'none';
         host.appendChild(card);
 
-        scene = new CampusScene(host, labelsEl, { onPick: showPoi });
+        scene = new CampusScene(host, labelsEl, { onPick: showPoi, onPickLandmark: showLandmark });
         return scene;
       }
 

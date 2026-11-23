@@ -198,13 +198,15 @@
     <div class="lab-head">
       <div class="lab-kicker">EXPERIMENT 04 / 图</div>
       <h2>呈贡校区 3D 地图 <span class="amp">·</span> Dijkstra 逐点松弛</h2>
-      <p>22 个地点、46 条道路构成带权无向图，邻接矩阵存储。3D 场景按云南大学呈贡校区的真实布局还原：
-         北门—龙门道 285 级台阶—明远楼—仰止楼（图书馆）中轴，西侧呈西体育场，东侧梓苑与文典广场，泽湖与云山点缀其间。
-         鼠标左键拖拽旋转、右键平移、滚轮缩放。</p>
+      <p>22 个地点、46 条道路构成带权无向图，邻接矩阵存储。3D 场景按 1 : 1 米建造，方位取自航拍总览图：
+         北门—明远楼—云山西麓—仰止楼（图书馆）构成中轴，西北是泽湖、钟楼与樱花坪，东侧是体育运动公园与东门，
+         南侧为楠苑、知味堂，六个校门由校区环路串起；另补入文科 / 理科 / 工科组团、医学院、植物园、天文台、地铁大学城站等真实地物。
+         左键拖拽旋转、右键平移、滚轮缩放。</p>
       <div class="lab-chips">
         <span class="chip core">核心：dijkstra / floydWarshall</span>
         <span class="chip data">校园数据：CampusData.cpp（22 点 46 边）</span>
         <span class="chip helper">渲染：three.js · 卡通描边</span>
+        <span class="chip helper">场景：1 : 1 米 · 47 栋楼 · 5 千余株树</span>
       </div>
     </div>
 
